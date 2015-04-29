@@ -18,6 +18,7 @@
 from _hashlib import new
 
 import logging
+import re
 
 __author__ = "Rafael Ferreira da Silva"
 
@@ -42,6 +43,8 @@ class Loader:
             with open(filename) as f:
                 new_entry = {}
 
+                buffer_line = ""
+
                 for line in f:
                     line = line.strip()
                     if line.startswith("%"):
@@ -61,11 +64,18 @@ class Loader:
                             new_entry = {}
                             continue
 
-                        key, value = _parse_entry(line)
-                        if len(value) > 0:
-                            new_entry[key] = value
-                        else:
-                            log.debug("[%s] Ignoring entry '%s': value is empty." % (new_entry['cite_key'], key))
+                        multiple_lines = False
+                        if not re.search(r"(\",|\"|\},|\})$", line):
+                            multiple_lines = True
+                            buffer_line += " " + line
+
+                        if not multiple_lines:
+                            key, value = _parse_entry(buffer_line + " " + line)
+                            buffer_line = ""
+                            if len(value) > 0:
+                                new_entry[key] = value
+                            else:
+                                log.debug("[%s] Ignoring entry '%s': value is empty." % (new_entry['cite_key'], key))
         return self.entries
 
     def _add_entry(self, new_entry):
