@@ -70,12 +70,13 @@ class Loader:
                             buffer_line += " " + line
 
                         if not multiple_lines:
-                            key, value = _parse_entry(buffer_line + " " + line)
+                            values = _parse_entry(buffer_line + " " + line)
                             buffer_line = ""
-                            if len(value) > 0:
-                                new_entry[key] = value
-                            else:
-                                log.debug("[%s] Ignoring entry '%s': value is empty." % (new_entry['cite_key'], key))
+                            for key in values:
+                                if values[key]:
+                                    new_entry[key] = values[key]
+                                else:
+                                    log.debug("[%s] Ignoring entry '%s': value is empty." % (new_entry['cite_key'], key))
         return self.entries
 
     def _add_entry(self, new_entry):
@@ -121,22 +122,30 @@ def _parse_entry(line):
     :param line:
     :return:
     """
-    s = line.split('=')
-    key = s[0].strip().lower()
-    value = s[1].strip()
+    multiple = re.split("\",|\},", line)
 
-    if key == "howpublished":
-        value = value.replace("\\url{", "")
-        value = value.replace("}}", "")
+    values = {}
+    for v in multiple:
+        s = re.split("=\s*\"|=\s*{", v)
+        key = s[0].strip().lower()
+        if len(key) == 0:
+            continue
+        value = s[1].strip()
 
-    if value.startswith("{") or value.startswith("\""):
-        value = value[1:len(value)]
-    if value.endswith("}") or value.endswith("\""):
-        value = value[0:len(value) - 1]
-    if value.endswith("},") or value.endswith("\","):
-        value = value[0:len(value) - 2]
+        if key == "howpublished":
+            value = value.replace("\\url{", "")
+            value = value.replace("}}", "")
 
-    return key, value
+        if value.startswith("{") or value.startswith("\""):
+            value = value[1:len(value)]
+        if value.endswith("}") or value.endswith("\""):
+            value = value[0:len(value) - 1]
+        if value.endswith("},") or value.endswith("\","):
+            value = value[0:len(value) - 2]
+        value = re.sub("{|\"|}", "", value)
+        values[key] = value
+
+    return values
 
 
 def _parse_bib_type(bib_type_name):

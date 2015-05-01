@@ -132,7 +132,7 @@ class Entry:
         if self.authors:
             entry_str += "\tauthor = {%s},\n" % self.authors
         if self.booktitle:
-            entry_str += "\tbooktitle = {%s},\n" % self.booktitle
+            entry_str += "\tbooktitle = {{%s}},\n" % self.booktitle
         if self.chapter:
             entry_str += "\tchapter = {%s},\n" % self.chapter
         if self.crossref:
@@ -146,7 +146,7 @@ class Entry:
         if self.institution:
             entry_str += "\tinstitution = {%s},\n" % self.institution
         if self.journal:
-            entry_str += "\tjournal = {%s},\n" % self.journal
+            entry_str += "\tjournal = {{%s}},\n" % self.journal
         if self.key:
             entry_str += "\tkey = {%s},\n" % self.key
         if self.month:
