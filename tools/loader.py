@@ -122,7 +122,23 @@ def _parse_entry(line):
     :param line:
     :return:
     """
+    max_fields = line.count('=')
     multiple = re.split("\",|\},", line)
+
+    if len(multiple) > max_fields + 1:
+        # fixes split due to braces added to keep string formatting
+        valid_field = ""
+        new_multiple = []
+        for v in multiple:
+            if '=' in v:
+                if len(valid_field) > 0:
+                    new_multiple.append(valid_field)
+                valid_field = v
+            else:
+                valid_field += "}, " + v
+        if len(valid_field) > 0:
+            new_multiple.append(valid_field)
+        multiple = new_multiple
 
     values = {}
     for v in multiple:
