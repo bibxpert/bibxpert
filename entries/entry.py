@@ -239,7 +239,8 @@ class Author:
             else:
                 self.first_name = author_name
                 self.last_name = None
-                log.warning("Unable to find last name: %s" % author_name)
+                if not author_name.lower() == "others":
+                    log.warning("Unable to find last name: %s" % author_name)
 
     def __str__(self):
         if self.last_name:
