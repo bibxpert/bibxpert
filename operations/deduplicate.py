@@ -32,6 +32,7 @@ def deduplicate(entries):
     parsed_entries = []
     cite_keys = {}
     titles = {}
+    key_replacement = {}
 
     count_keys = 0
     count_titles = 0
@@ -48,6 +49,10 @@ def deduplicate(entries):
             if matched:
                 count_titles += 1
                 matched_entry.merge(entry)
+                if matched_entry.cite_key in key_replacement:
+                    key_replacement[matched_entry.cite_key].append(entry.cite_key)
+                else:
+                    key_replacement[matched_entry.cite_key] = [entry.cite_key]
             else:
                 cite_keys[entry.cite_key.lower()] = entry
                 titles[entry.title.lower()] = entry
@@ -57,6 +62,14 @@ def deduplicate(entries):
         log.info("Found %s duplicated cite key entries." % count_keys)
     if count_titles > 0:
         log.info("Found %s duplicated title entries." % count_titles)
+        print "The following cite keys should be replaced in your latex source files:"
+        for key in key_replacement:
+            keys = ""
+            for k in key_replacement[key]:
+                if len(keys) > 0:
+                    keys += ", "
+                keys += k
+            print "    %s ==> %s" % (keys, key)
 
     log.debug("Initial number of entries: %s" % len(entries))
     log.debug("Number of entries after deduplication: %s" % len(parsed_entries))
