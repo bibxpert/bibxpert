@@ -39,7 +39,7 @@ class Entry:
     def __init__(self, entry_type=None, cite_key=None, address=None, annote=None, authors=None, booktitle=None,
                  chapter=None, crossref=None, edition=None, editor=None, howpublished=None, institution=None,
                  journal=None, key=None, month=None, note=None, number=None, organization=None, pages=None,
-                 publisher=None, school=None, series=None, title=None, type=None, volume=None, year=None):
+                 publisher=None, school=None, series=None, title=None, type=None, volume=None, year=None, doi=None):
         """
 
         :param entry_type:
@@ -68,6 +68,7 @@ class Entry:
         :param type:
         :param volume:
         :param year:
+        :param doi:
         """
         self.entry_type = entry_type
         self.cite_key = cite_key
@@ -95,6 +96,7 @@ class Entry:
         self.type = type
         self.volume = volume
         self.year = year
+        self.doi = doi
 
     def merge(self, entry):
         self.entry_type = _merge_field(self.entry_type, entry.entry_type)
@@ -122,6 +124,7 @@ class Entry:
         self.type = _merge_field(self.type, entry.type)
         self.volume = _merge_field(self.volume, entry.volume)
         self.year = _merge_field(self.year, entry.year, is_int=True)
+        self.doi = _merge_field(self.doi, entry.doi)
 
     def __str__(self):
         entry_str = "@%s{%s,\n" % (self.entry_type, self.cite_key)
@@ -173,6 +176,8 @@ class Entry:
             entry_str += "\tvolume = {%s},\n" % self.volume
         if self.year:
             entry_str += "\tyear = {%s},\n" % self.year
+        if self.doi:
+            entry_str += "\tdoi = {%s},\n" % self.doi
         entry_str += "}\n\n"
         return entry_str
 

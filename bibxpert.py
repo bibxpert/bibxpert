@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #
 # Copyright 2015 Rafael Ferreira da Silva
-#  http://www.rafaelsilva.com/tools
+# http://www.rafaelsilva.com/tools
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -17,34 +17,37 @@
 #
 __author__ = "Rafael Ferreira da Silva"
 
-import os
-from optparse import OptionParser
+from optparse import OptionParser, OptionGroup
 
 from operations.deduplicate import *
+from operations.search.science_direct import *
 from tools import loader
 
 log = logging.getLogger(__name__)
 
 
 def process(options, args):
-
     # Load entries
-    entries = loader.Loader(args).load()
+    entries = loader.Loader(args).load_from_file()
 
     # Deduplicate
     if options.all or options.deduplicate:
         entries = deduplicate(entries)
+
+    # Scholar Resources
+    if options.all or options.scholar:
+        entries = science_direct(entries)
 
     # Write results
     if options.output:
         f = open(options.output, 'w')
         log.info("Writing entries to '%s'." % options.output)
 
-    for entry in entries:
+    for e in entries:
         if options.output:
-            f.write(entry.__str__())
+            f.write(str(e))
         else:
-            print entry
+            print e
 
     if options.output:
         f.close()
@@ -62,15 +65,20 @@ def option_parser(usage):
                       default=False, help="Apply all options")
     parser.add_option("-D", "--deduplicate", dest="deduplicate", action="store_true",
                       default=False, help="Remove duplicated entries")
+    parser.add_option("-s", "--scholar", dest="scholar", action="store_true",
+                      default=False, help="Update BIBTex entries according to Scholar Resources (e.g., Science Direct)")
 
-    parser.add_option("-o","--output",action="store",type="string",
-        dest="output",default=None, help = "Output file")
-    parser.add_option("-d", "--debug", dest="debug", action="store_true",
-                      default=False, help="Turn on debugging")
-    parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
-                      default=False, help="Show progress messages")
+    parser.add_option("-o", "--output", action="store", type="string",
+                      dest="output", default=None, help="Output file")
 
-    # Add a hook so we can handle global arguments
+    global logging_group
+    logging_group = OptionGroup(parser, "Logging Options")
+    logging_group.add_option("-d", "--debug", dest="debug", action="store_true",
+                             default=False, help="Turn on debugging")
+    logging_group.add_option("-v", "--verbose", dest="verbose", action="store_true",
+                             default=False, help="Show progress messages")
+    parser.add_option_group(logging_group)
+
     fn = parser.parse_args
 
     def parse(*args, **kwargs):
@@ -98,7 +106,8 @@ def main():
         log.error("At least one bibtex file should be provided.")
         parser.print_help()
         exit(1)
-    if not options.all and not options.deduplicate:
+
+    if not options.all and not options.deduplicate and not options.scholar:
         log.error("At least one option should be provided.")
         parser.print_help()
         exit(1)

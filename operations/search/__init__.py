@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 #
 # Copyright 2015 Rafael Ferreira da Silva
 # http://www.rafaelsilva.com/tools
@@ -15,4 +16,5 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
-__author__ = 'Rafael Ferreira da Silva'
+__author__ = "Rafael Ferreira da Silva"
+__all__ = ['science_direct']

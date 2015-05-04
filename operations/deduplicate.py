@@ -28,7 +28,7 @@ def deduplicate(entries):
     :param entries: list of entries
     :return: list of deduplicated entries
     """
-    log.debug("Seeking for duplicated entries")
+    log.info("Seeking for duplicated entries")
     parsed_entries = []
     cite_keys = {}
     titles = {}

@@ -15,16 +15,18 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
-from _hashlib import new
+__author__ = "Rafael Ferreira da Silva"
 
 import logging
 import re
 
-__author__ = "Rafael Ferreira da Silva"
-
 from entries import entry
 
 log = logging.getLogger(__name__)
+
+
+class ParserException(Exception):
+    pass
 
 
 class Loader:
@@ -36,7 +38,11 @@ class Loader:
         self.entries = []
         self.bibFiles = bib_files
 
-    def load(self):
+    def load_from_file(self):
+        """
+        Load bib entries from a list of bibtex files.
+        :return: set of entries objects
+        """
         for filename in self.bibFiles:
             log.debug("Parsing file: %s" % filename)
 
@@ -44,39 +50,62 @@ class Loader:
                 new_entry = {}
 
                 buffer_line = ""
+                ignore_entry = False
+                line_number = 0
 
                 for line in f:
+                    line_number += 1
                     line = line.strip()
-                    if line.startswith("%"):
-                        continue
-                    if len(line) == 0:
+
+                    if line.startswith("%") or len(line) == 0:
                         continue
 
                     if line.startswith("@"):
-                        new_entry = {}
-                        bib_type = line[1:line.index('{')]
-                        key = line[line.index('{') + 1:line.index(',')]
-                        new_entry['bib_type'] = bib_type
-                        new_entry['cite_key'] = key
-                    else:
-                        if line.startswith("}"):
+                        # handling for malformed bib entries
+                        if len(new_entry) > 0:
                             self._add_entry(new_entry)
-                            new_entry = {}
+
+                        ignore_entry = False
+                        new_entry = {}
+                        index = re.search("{|\(", line).start()
+
+                        # attempt to parse bib entry type
+                        try:
+                            bib_type = _parse_bib_type(line[1:index].strip())
+                        except ParserException, e:
+                            # Unable to parse entry type, so ignore this entry
+                            log.warning("[%s, %s] %s" % (filename, line_number, e))
+                            log.warning("The entire entry will be skipped.")
+                            ignore_entry = True
                             continue
 
-                        multiple_lines = False
-                        if not re.search(r"(\",|\"|\},|\})$", line):
-                            multiple_lines = True
-                            buffer_line += " " + line
+                        key = line[index + 1:line.index(',')].strip()
+                        new_entry['bib_type'] = bib_type
+                        new_entry['cite_key'] = key
 
-                        if not multiple_lines:
-                            values = _parse_entry(buffer_line + " " + line)
-                            buffer_line = ""
-                            for key in values:
-                                if values[key]:
-                                    new_entry[key] = values[key]
-                                else:
-                                    log.debug("[%s] Ignoring entry '%s': value is empty." % (new_entry['cite_key'], key))
+                    else:
+                        if ignore_entry or line.startswith("}") or line.startswith(")"):
+                            if len(new_entry) > 0:
+                                self._add_entry(new_entry)
+                                new_entry = {}
+                                buffer_line = ""
+                            continue
+
+                        if _is_multiple_lines(line):
+                            buffer_line += " " + line
+                        else:
+                            # entry sanity check
+                            if 'cite_key' not in new_entry:
+                                ignore_entry = True
+                                log.warning("[%s, %s] Malformed entry." % (filename, line_number))
+                                log.warning("The entire entry will be skipped.")
+                                buffer_line = ""
+                                continue
+
+                            if len(buffer_line) > 0:
+                                new_entry = _parse_entry(new_entry, buffer_line)
+                                buffer_line = ""
+                            new_entry = _parse_entry(new_entry, line)
         return self.entries
 
     def _add_entry(self, new_entry):
@@ -86,7 +115,7 @@ class Loader:
         """
         log.info("Adding entry: %s" % new_entry["cite_key"])
         self.entries.append(entry.Entry(
-            entry_type=_parse_bib_type(new_entry["bib_type"]),
+            entry_type=new_entry["bib_type"],
             cite_key=new_entry["cite_key"],
             address=_get_value("address", new_entry),
             annote=_get_value("annote", new_entry),
@@ -116,16 +145,32 @@ class Loader:
         log.debug("Added entry: %s" % new_entry)
 
 
-def _parse_entry(line):
+def _is_multiple_lines(line):
     """
 
     :param line:
     :return:
     """
-    max_fields = line.count('=')
-    multiple = re.split("\",|\},", line)
+    if '=' in line:
+        s = line.split('=')[1].strip()
+        if s.startswith("{") and len(re.findall('{', s)) == len(re.findall('}', s)):
+            return False
+        elif s.startswith("\"") and len(re.findall("\"", s)) % 2 == 0:
+            return False
+    return True
 
-    if len(multiple) > max_fields + 1:
+
+def _parse_entry(new_entry, line):
+    """
+
+    :param new_entry:
+    :param line:
+    :return:
+    """
+    max_fields = line.count('=')
+    multiple = re.split("\",|\},|,", line)
+
+    if len(multiple) > max_fields:
         # fixes split due to braces added to keep string formatting
         valid_field = ""
         new_multiple = []
@@ -142,7 +187,7 @@ def _parse_entry(line):
 
     values = {}
     for v in multiple:
-        s = re.split("=\s*\"|=\s*{", v)
+        s = re.split("=\s*\"|=\s*\{|=\s*", v)
         key = s[0].strip().lower()
         if len(key) == 0:
             continue
@@ -154,14 +199,20 @@ def _parse_entry(line):
 
         if value.startswith("{") or value.startswith("\""):
             value = value[1:len(value)]
-        if value.endswith("}") or value.endswith("\""):
+        if value.endswith("}") or value.endswith("\"") or value.endswith(","):
             value = value[0:len(value) - 1]
         if value.endswith("},") or value.endswith("\","):
             value = value[0:len(value) - 2]
         value = re.sub("{|\"|}", "", value)
         values[key] = value
 
-    return values
+    for key in values:
+        if values[key]:
+            new_entry[key] = values[key]
+        else:
+            log.debug("[%s] Ignoring entry '%s': value is empty." % (new_entry['cite_key'], key))
+
+    return new_entry
 
 
 def _parse_bib_type(bib_type_name):
@@ -193,8 +244,7 @@ def _parse_bib_type(bib_type_name):
     if bib_type_name.lower() == entry.EntryType.TECHREPORT:
         return entry.EntryType.TECHREPORT
 
-    log.error("Unable to parse type: %s" % bib_type_name)
-    exit(1)
+    raise ParserException("Unable to parse type: %s" % bib_type_name)
 
 
 def _get_value(key, entry):
