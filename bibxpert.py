@@ -107,11 +107,6 @@ def main():
         parser.print_help()
         exit(1)
 
-    if not options.all and not options.deduplicate and not options.scholar:
-        log.error("At least one option should be provided.")
-        parser.print_help()
-        exit(1)
-
     process(options, args)
 
 
