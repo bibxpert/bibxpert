@@ -38,6 +38,10 @@ def science_direct(entries):
     count = 0
 
     for e in entries:
+        if e.online_processed:
+            log.debug("Entry '%s' already processed." % e.cite_key)
+            continue
+
         if not e.entry_type == entry.EntryType.ARTICLE:
             log.debug("Skipping non-journal entry '%s'." % e.title)
             continue

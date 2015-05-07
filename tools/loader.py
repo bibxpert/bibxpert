@@ -123,6 +123,7 @@ class Loader:
             booktitle=_get_value("booktitle", new_entry),
             chapter=_get_value("chapter", new_entry),
             crossref=_get_value("crossref", new_entry),
+            doi=_get_value("doi", new_entry),
             edition=_get_value("edition", new_entry),
             editor=_get_value("editor", new_entry),
             howpublished=_get_value("howpublished", new_entry),

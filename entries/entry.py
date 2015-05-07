@@ -81,7 +81,7 @@ class Entry:
         self.chapter = chapter
         self.crossref = crossref
         self.edition = edition
-        self.editor = editor
+        self.editor = Authors(authors_list=editor)
         self.howpublished = howpublished
         self.institution = institution
         self.journal = journal
