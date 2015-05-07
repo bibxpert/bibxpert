@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 
 def deduplicate(entries):
     """
-
+    Look for duplicated bibliography entries and merge them.
     :param entries: list of entries
     :return: list of deduplicated entries
     """
@@ -62,7 +62,7 @@ def deduplicate(entries):
         log.info("Found %s duplicated cite key entries." % count_keys)
     if count_titles > 0:
         log.info("Found %s duplicated title entries." % count_titles)
-        print "The following cite keys should be replaced in your latex source files:"
+        print "The following cite keys should be replaced in your LaTeX source files:"
         for key in key_replacement:
             keys = ""
             for k in key_replacement[key]:

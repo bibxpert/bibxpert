@@ -18,6 +18,7 @@
 __author__="Rafael Ferreira da Silva"
 
 import logging
+import re
 import sys
 from difflib import SequenceMatcher
 
@@ -84,3 +85,12 @@ def is_similar(a, b, threshold=SIMILARITY_THRESHOLD):
         log.debug("String similarity of '%s' detected between: '%s' AND '%s'" % (ratio, a, b))
         return True
     return False
+
+
+def clean_field(value):
+    """
+    Remove brackets and quotes from strings.
+    :param value: string to be evaluated
+    :return: cleaned string
+    """
+    return re.sub(r'{|}|"', "", value)

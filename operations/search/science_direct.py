@@ -48,47 +48,50 @@ def science_direct(entries):
         sd_response = requests.get(sd_url, params=sd_params, headers=sd_headers)
         sd_res = sd_response.json()
 
-        if 'error' not in sd_res['search-results']['entry'][0]:
-            sc_params = {'query': 'TITLE("%s")' % e.title, 'view': 'STANDARD'}
-            sc_url = 'http://api.elsevier.com/content/search/scopus'
-            sc_headers = {'X-ELS-APIKey': '6b7571677244819622d79889d590f307', 'X-ELS-ResourceVersion': 'XOCS'}
-            sc_response = requests.get(sc_url, params=sc_params, headers=sc_headers)
-            sc_res = sc_response.json()
-
-            # SCOPUS fields
-            sc_res_obj = sc_res['search-results']['entry'][0]
-            entry_type = _parse_entry_type(sc_res_obj['prism:aggregationType'])
-            volume = sc_res_obj['prism:volume']
-            year = _parse_year(sc_res_obj['prism:coverDisplayDate'])
-
-            # Science Direct fields
-            sd_res_obj = sd_res['search-results']['entry'][0]
-
-            # Authors
-            authors = ""
-            for author in sd_res_obj['authors']['author']:
-                if len(authors) > 0:
-                    authors += " and "
-                authors += author['surname'] + ", " + author['given-name']
-            authors = unicodedata.normalize('NFKD', authors).encode('ascii','ignore')
-
-            # Other fields
-            title = sd_res_obj['dc:title']
-            doi = sd_res_obj['prism:doi']
-            journal = sd_res_obj['prism:publicationName']
-
-            e.merge(entry.Entry(
-                entry_type=entry_type,
-                title=title,
-                authors=authors,
-                journal=journal,
-                volume=volume,
-                year=year,
-                doi=doi
-            ))
-            count += 1
-        else:
+        if 'error' in sd_res['search-results']['entry'][0]:
             log.debug("No results found in Science Direct for '%s'." % e.title)
+            continue
+
+        sc_params = {'query': 'TITLE("%s")' % e.title, 'view': 'STANDARD'}
+        sc_url = 'http://api.elsevier.com/content/search/scopus'
+        sc_headers = {'X-ELS-APIKey': '6b7571677244819622d79889d590f307', 'X-ELS-ResourceVersion': 'XOCS'}
+        sc_response = requests.get(sc_url, params=sc_params, headers=sc_headers)
+        sc_res = sc_response.json()
+
+        # SCOPUS fields
+        sc_res_obj = sc_res['search-results']['entry'][0]
+        entry_type = _parse_entry_type(sc_res_obj['prism:aggregationType'])
+        volume = sc_res_obj['prism:volume']
+        year = _parse_year(sc_res_obj['prism:coverDisplayDate'])
+
+        # Science Direct fields
+        sd_res_obj = sd_res['search-results']['entry'][0]
+
+        # Authors
+        authors = ""
+        for author in sd_res_obj['authors']['author']:
+            if len(authors) > 0:
+                authors += " and "
+            authors += author['surname'] + ", " + author['given-name']
+        authors = unicodedata.normalize('NFKD', authors).encode('ascii','ignore')
+
+        # Other fields
+        title = sd_res_obj['dc:title']
+        doi = sd_res_obj['prism:doi']
+        journal = sd_res_obj['prism:publicationName']
+
+        e.merge(entry.Entry(
+            entry_type=entry_type,
+            title=title,
+            authors=authors,
+            journal=journal,
+            volume=volume,
+            year=year,
+            doi=doi
+        ))
+        e.online_processed = True
+        count += 1
+
         time.sleep(1)
 
     if count > 0:

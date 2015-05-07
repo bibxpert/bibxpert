@@ -139,6 +139,7 @@ class Loader:
             series=_get_value("series", new_entry),
             title=_get_value("title", new_entry),
             type=_get_value("type", new_entry),
+            url=_get_value("url", new_entry),
             volume=_get_value("volume", new_entry),
             year=_get_value("year", new_entry)
         ))

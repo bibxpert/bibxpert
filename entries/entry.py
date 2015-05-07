@@ -39,7 +39,8 @@ class Entry:
     def __init__(self, entry_type=None, cite_key=None, address=None, annote=None, authors=None, booktitle=None,
                  chapter=None, crossref=None, edition=None, editor=None, howpublished=None, institution=None,
                  journal=None, key=None, month=None, note=None, number=None, organization=None, pages=None,
-                 publisher=None, school=None, series=None, title=None, type=None, volume=None, year=None, doi=None):
+                 publisher=None, school=None, series=None, title=None, type=None, url=None, volume=None,
+                 year=None, doi=None):
         """
 
         :param entry_type:
@@ -66,6 +67,7 @@ class Entry:
         :param series:
         :param title:
         :param type:
+        :param url:
         :param volume:
         :param year:
         :param doi:
@@ -94,9 +96,11 @@ class Entry:
         self.series = series
         self.title = title
         self.type = type
+        self.url = url
         self.volume = volume
         self.year = year
         self.doi = doi
+        self.online_processed = False
 
     def merge(self, entry):
         self.entry_type = _merge_field(self.entry_type, entry.entry_type)
@@ -122,6 +126,7 @@ class Entry:
         self.series = _merge_field(self.series, entry.series)
         self.title = _merge_field(self.title, entry.title)
         self.type = _merge_field(self.type, entry.type)
+        self.url = _merge_field(self.url, entry.url)
         self.volume = _merge_field(self.volume, entry.volume)
         self.year = _merge_field(self.year, entry.year, is_int=True)
         self.doi = _merge_field(self.doi, entry.doi)
@@ -172,6 +177,8 @@ class Entry:
             entry_str += "\ttitle = {%s},\n" % self.title
         if self.type:
             entry_str += "\ttype = {%s},\n" % self.type
+        if self.url:
+            entry_str += "\turl = {%s},\n" % self.url
         if self.volume:
             entry_str += "\tvolume = {%s},\n" % self.volume
         if self.year:
