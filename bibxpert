@@ -69,7 +69,8 @@ def option_parser(usage):
     parser.add_option("-D", "--deduplicate", dest="deduplicate", action="store_true",
                       default=False, help="Remove duplicated entries")
     parser.add_option("-s", "--scholar", dest="scholar", action="store_true",
-                      default=False, help="Update BIBTex entries according to Scholar Resources (e.g., Science Direct)")
+                      default=False, help="Update BIBTex entries according to Scholar Resources "
+                                          "(e.g., DOI, IEEE, Science Direct, and arXiv)")
 
     parser.add_option("-o", "--output", action="store", type="string",
                       dest="output", default=None, help="Output file")
