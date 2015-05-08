@@ -17,4 +17,4 @@
 #  limitations under the License.
 #
 __author__ = "Rafael Ferreira da Silva"
-__all__ = ['science_direct']
+__all__ = ['arxiv', 'doi', 'ieee', 'science_direct']

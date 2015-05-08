@@ -28,7 +28,7 @@ from xml.etree import ElementTree
 log = logging.getLogger(__name__)
 
 
-def arxiv(entries):
+def process(entries):
     """
     Look for arXiv database to update the bibliography entries.
     This update evaluates only '@ARTICLE' entry types.

@@ -26,7 +26,7 @@ from entries import entry
 log = logging.getLogger(__name__)
 
 
-def doi(entries):
+def process(entries):
     """
     Look for DOI database to update the bibliography entries.
     :param entries: list of bibtex entries
@@ -83,7 +83,7 @@ def doi(entries):
                     authors_list += " and "
                 authors_list += author['family'] + ", " + author['given']
 
-        # authors
+        # editors
         editor = None
         if 'editor' in sd_res:
             editor = ""
@@ -94,6 +94,7 @@ def doi(entries):
 
         booktitle = None
         journal = None
+        entry_type = entry.EntryType.MISC
 
         if type == "journal-article":
             entry_type = entry.EntryType.ARTICLE

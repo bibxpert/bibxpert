@@ -103,7 +103,7 @@ class Entry:
         self.online_processed = False
 
     def merge(self, entry):
-        self.entry_type = _merge_field(self.entry_type, entry.entry_type)
+        self.entry_type = _merge_entry_type(self.entry_type, entry.entry_type)
         self.address = _merge_field(self.address, entry.address)
         self.annote = _merge_field(self.annote, entry.annote)
         self.authors = _merge_field(self.authors, entry.authors)
@@ -315,3 +315,29 @@ def _merge_field(f1, f2, is_int=False):
     else:
         return f2
     return f1
+
+
+def _merge_entry_type(t1, t2):
+    """
+    Merge entry type field from two entries according to entry type level.
+    :param t1: first entry type
+    :param t2: second entry type
+    :return: merged entry type
+    """
+    if t1 == EntryType.ARTICLE or t2 == EntryType.ARTICLE:
+        return EntryType.ARTICLE
+    if t1 == EntryType.INPROCEEDINGS or t2 == EntryType.INPROCEEDINGS:
+        return EntryType.INPROCEEDINGS
+    if t1 == EntryType.INCOLLECTION or t2 == EntryType.INCOLLECTION:
+        return EntryType.INCOLLECTION
+    if t1 == EntryType.PROCEEDINGS or t2 == EntryType.PROCEEDINGS:
+        return EntryType.PROCEEDINGS
+    if t1 == EntryType.BOOK or t2 == EntryType.BOOK:
+        return EntryType.BOOK
+    if t1 == EntryType.PHDTHESIS or t2 == EntryType.PHDTHESIS:
+        return EntryType.PHDTHESIS
+    if t1 == EntryType.MASTERTHESIS or t2 == EntryType.MASTERTHESIS:
+        return EntryType.MASTERTHESIS
+    if t1 == EntryType.TECHREPORT or t2 == EntryType.TECHREPORT:
+        return EntryType.TECHREPORT
+    return EntryType.MISC

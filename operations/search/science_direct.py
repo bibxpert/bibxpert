@@ -27,7 +27,7 @@ from entries import entry
 log = logging.getLogger(__name__)
 
 
-def science_direct(entries):
+def process(entries):
     """
     Look for Science Direct (SCOPUS) database to update the bibliography entries.
     This update evaluates only '@ARTICLE' entry types.

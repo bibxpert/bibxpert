@@ -20,9 +20,7 @@ __author__ = "Rafael Ferreira da Silva"
 from optparse import OptionParser, OptionGroup
 
 from operations.deduplicate import *
-from operations.search.arxiv import *
-from operations.search.doi import *
-from operations.search.science_direct import *
+from operations.search import *
 from tools import loader
 
 log = logging.getLogger(__name__)
@@ -38,9 +36,10 @@ def process(options, args):
 
     # Scholar Resources
     if options.all or options.scholar:
-        entries = doi(entries)
-        entries = science_direct(entries)
-        entries = arxiv(entries)
+        entries = doi.process(entries)
+        entries = ieee.process(entries)
+        entries = science_direct.process(entries)
+        entries = arxiv.process(entries)
 
     # Write results
     if options.output:
