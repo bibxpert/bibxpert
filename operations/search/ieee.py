@@ -95,9 +95,10 @@ def process(entries):
             publisher=publisher
         ))
         e.online_processed = True
+        log.debug("[IEEE] Updated entry '%s'." % e.title)
         count += 1
 
-        time.sleep(1)
+        time.sleep(0.5)
 
     if count > 0:
         log.info("Updated %s entries according to IEEE Xplore." % count)
