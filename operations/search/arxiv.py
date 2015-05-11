@@ -31,7 +31,6 @@ log = logging.getLogger(__name__)
 def process(entries):
     """
     Look for arXiv database to update the bibliography entries.
-    This update evaluates only '@ARTICLE' entry types.
     :param entries: list of bibtex entries
     :return:
     """
@@ -84,9 +83,10 @@ def process(entries):
                 year=year
             ))
         e.online_processed = True
+        log.debug("[arXiv] Updated entry '%s'." % e.title)
         count += 1
 
-        time.sleep(1)
+        time.sleep(0.5)
 
     if count > 0:
         log.info("Updated %s entries according to arXiv." % count)
