@@ -17,7 +17,6 @@
 #
 __author__ = "Rafael Ferreira da Silva"
 
-import re
 from tools.utils import *
 
 log = logging.getLogger(__name__)
@@ -42,12 +41,12 @@ class Entry:
                  publisher=None, school=None, series=None, title=None, type=None, url=None, volume=None,
                  year=None, doi=None):
         """
-
-        :param entry_type:
-        :param cite_key:
+        Create a bib entry.
+        :param entry_type: type of the entry (e.g., article, inproceedings, etc.)
+        :param cite_key: cite key used in latex files to reference the entry
         :param address:
         :param annote:
-        :param authors:
+        :param authors: list of authors (separated by 'and')
         :param booktitle:
         :param chapter:
         :param crossref:
@@ -56,21 +55,21 @@ class Entry:
         :param howpublished:
         :param institution:
         :param journal:
-        :param key:
+        :param key: publication key (usually required for 'misc' entry types)
         :param month:
         :param note:
         :param number:
         :param organization:
-        :param pages:
+        :param pages: page numbers (separated by dashes)
         :param publisher:
         :param school:
         :param series:
-        :param title:
+        :param title: publication title
         :param type:
-        :param url:
+        :param url: publication url
         :param volume:
-        :param year:
-        :param doi:
+        :param year: publication year
+        :param doi: document object identifier
         """
         self.entry_type = entry_type
         self.cite_key = cite_key
@@ -103,6 +102,10 @@ class Entry:
         self.online_processed = False
 
     def merge(self, entry):
+        """
+        Merge two entries.
+        :param entry: entry to be merged
+        """
         self.entry_type = _merge_entry_type(self.entry_type, entry.entry_type)
         self.address = _merge_field(self.address, entry.address)
         self.annote = _merge_field(self.annote, entry.annote)
@@ -204,6 +207,11 @@ class Authors:
             for author in authors_list.split(" and "):
                 self.authors.append(Author(author.strip()))
 
+    def merge(self, merge_authors):
+        max_len = min(len(merge_authors), len(self.authors))
+        for i in range(0, max_len):
+            self.authors[i].merge(merge_authors[i])
+
     def __str__(self):
         authors = ""
         for author in self.authors:
@@ -253,6 +261,17 @@ class Author:
                 self.last_name = None
                 if not author_name.lower() == "others":
                     log.warning("Unable to find last name: %s" % author_name)
+
+    def merge(self, author_merge):
+        """
+        Merge author's first and last names with another similar entry.
+        :param author_merge: author names to be merged
+        """
+        if is_similar(self.last_name, author_merge.last_name, threshold=0.5):
+            if len(author_merge.last_name) > self.last_name:
+                self.last_name = author_merge.last_name
+            if len(author_merge.first_name) > self.first_name:
+                self.first_name = author_merge.first_name
 
     def __str__(self):
         if self.last_name:
