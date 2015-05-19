@@ -243,7 +243,9 @@ class Author:
         Merge author's first and last names with another similar entry.
         :param author_merge: author names to be merged
         """
-        if is_similar(self.last_name, author_merge.last_name, threshold=0.5):
+        if not self.last_name and author_merge.last_name:
+            self.last_name = author_merge.last_name
+        elif author_merge.last_name and is_similar(self.last_name, author_merge.last_name, threshold=0.5):
             if len(author_merge.last_name) > self.last_name:
                 self.last_name = author_merge.last_name
             if len(author_merge.first_name) > self.first_name:
