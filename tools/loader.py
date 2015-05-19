@@ -51,6 +51,7 @@ class Loader:
 
                 buffer_line = ""
                 ignore_entry = False
+                multiple_lines = False
                 line_number = 0
 
                 for line in f:
@@ -85,13 +86,14 @@ class Loader:
 
                     else:
                         if ignore_entry or line.startswith("}") or line.startswith(")"):
-                            if len(new_entry) > 0:
+                            if len(new_entry) > 0 and not multiple_lines:
                                 self._add_entry(new_entry)
                                 new_entry = {}
                                 buffer_line = ""
                             continue
 
-                        if _is_multiple_lines(line):
+                        multiple_lines = _is_multiple_lines(line)
+                        if multiple_lines:
                             buffer_line += " " + line
                         else:
                             # entry sanity check

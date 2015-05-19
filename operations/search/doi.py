@@ -20,7 +20,7 @@ __author__ = "Rafael Ferreira da Silva"
 import logging
 import requests
 import time
-import pprint
+from tools import utils
 
 from entries import entry
 
@@ -43,7 +43,6 @@ def process(entries):
 
         doi_addr = e.doi
         if "dx.doi.org" in doi_addr:
-            doi_addr = doi_addr.replace("http://", "")
             doi_addr = doi_addr[doi_addr.rfind("dx.doi.org") + 11:]
 
         sd_url = 'http://dx.doi.org/%s' % doi_addr
@@ -83,7 +82,7 @@ def process(entries):
             for author in sd_res['author']:
                 if len(authors_list) > 0:
                     authors_list += " and "
-                authors_list += str(author['family']) + ", " + str(author['given'])
+                authors_list += utils.encode(author['family']) + ", " + utils.encode(author['given'])
 
         # editors
         editor = None
@@ -92,7 +91,7 @@ def process(entries):
             for author in sd_res['editor']:
                 if len(editor) > 0:
                     editor += " and "
-                editor += str(author['family']) + ", " + str(author['given'])
+                editor += utils.encode(author['family']) + ", " + utils.encode(author['given'])
 
         booktitle = None
         journal = None

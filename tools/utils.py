@@ -94,3 +94,12 @@ def clean_field(value):
     :return: cleaned string
     """
     return re.sub(r'{|}|"', "", value)
+
+
+def encode(value):
+    """
+    Encode strings in UTF-8.
+    :param value: value to be encoded in UTF-8
+    :return: encoded value
+    """
+    return str(u''.join(value).encode('utf-8'))
