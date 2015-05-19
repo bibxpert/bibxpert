@@ -17,6 +17,7 @@
 #
 __author__ = "Rafael Ferreira da Silva"
 
+import unicodedata
 from tools.utils import *
 
 log = logging.getLogger(__name__)
@@ -51,7 +52,7 @@ class Entry:
         :param chapter:
         :param crossref:
         :param edition:
-        :param editor:
+        :param editors:
         :param howpublished:
         :param institution:
         :param journal:
@@ -80,7 +81,7 @@ class Entry:
         self.chapter = chapter
         self.crossref = crossref
         self.edition = edition
-        self.editor = Authors(authors_list=editor)
+        self.editors = Authors(authors_list=editor)
         self.howpublished = howpublished
         self.institution = institution
         self.journal = journal
@@ -109,12 +110,10 @@ class Entry:
         self.entry_type = _merge_entry_type(self.entry_type, entry.entry_type)
         self.address = _merge_field(self.address, entry.address)
         self.annote = _merge_field(self.annote, entry.annote)
-        self.authors = _merge_field(self.authors, entry.authors)
         self.booktitle = _merge_field(self.booktitle, entry.booktitle)
         self.chapter = _merge_field(self.chapter, entry.chapter)
         self.crossref = _merge_field(self.crossref, entry.crossref)
         self.edition = _merge_field(self.edition, entry.edition)
-        self.editor = _merge_field(self.editor, entry.editor)
         self.howpublished = _merge_field(self.howpublished, entry.howpublished)
         self.institution = _merge_field(self.institution, entry.institution)
         self.journal = _merge_field(self.journal, entry.journal)
@@ -133,61 +132,38 @@ class Entry:
         self.volume = _merge_field(self.volume, entry.volume)
         self.year = _merge_field(self.year, entry.year, is_int=True)
         self.doi = _merge_field(self.doi, entry.doi)
+        self.editors.merge(entry.editors.authors)
+        self.authors.merge(entry.authors.authors)
+
 
     def __str__(self):
         entry_str = "@%s{%s,\n" % (self.entry_type, self.cite_key)
-        if self.address:
-            entry_str += "\taddress = {%s},\n" % self.address
-        if self.annote:
-            entry_str += "\tannote = {%s},\n" % self.annote
-        if self.authors:
-            entry_str += "\tauthor = {%s},\n" % self.authors
-        if self.booktitle:
-            entry_str += "\tbooktitle = {{%s}},\n" % self.booktitle
-        if self.chapter:
-            entry_str += "\tchapter = {%s},\n" % self.chapter
-        if self.crossref:
-            entry_str += "\tcrossref = {%s},\n" % self.crossref
-        if self.edition:
-            entry_str += "\tedition = {%s},\n" % self.edition
-        if self.editor:
-            entry_str += "\teditor = {%s},\n" % self.editor
-        if self.howpublished:
-            entry_str += "\thowpublished = {%s},\n" % self.howpublished
-        if self.institution:
-            entry_str += "\tinstitution = {%s},\n" % self.institution
-        if self.journal:
-            entry_str += "\tjournal = {{%s}},\n" % self.journal
-        if self.key:
-            entry_str += "\tkey = {%s},\n" % self.key
-        if self.month:
-            entry_str += "\tmonth = {%s},\n" % self.month
-        if self.note:
-            entry_str += "\tnote = {%s},\n" % self.note
-        if self.number:
-            entry_str += "\tnumber = {%s},\n" % self.number
-        if self.organization:
-            entry_str += "\torganization = {%s},\n" % self.organization
-        if self.pages:
-            entry_str += "\tpages = {%s},\n" % self.pages
-        if self.publisher:
-            entry_str += "\tpublisher = {%s},\n" % self.publisher
-        if self.school:
-            entry_str += "\tschool = {%s},\n" % self.school
-        if self.series:
-            entry_str += "\thowpublished = {%s},\n" % self.series
-        if self.title:
-            entry_str += "\ttitle = {%s},\n" % self.title
-        if self.type:
-            entry_str += "\ttype = {%s},\n" % self.type
-        if self.url:
-            entry_str += "\turl = {%s},\n" % self.url
-        if self.volume:
-            entry_str += "\tvolume = {%s},\n" % self.volume
-        if self.year:
-            entry_str += "\tyear = {%s},\n" % self.year
-        if self.doi:
-            entry_str += "\tdoi = {%s},\n" % self.doi
+        entry_str += _print_field("address", self.address)
+        entry_str += _print_field("annote", self.annote)
+        entry_str += _print_field("author", self.authors)
+        entry_str += _print_field("booktitle", self.booktitle, capitals=True)
+        entry_str += _print_field("chapter", self.chapter)
+        entry_str += _print_field("crossref", self.crossref)
+        entry_str += _print_field("edition", self.edition)
+        entry_str += _print_field("editor", self.editors)
+        entry_str += _print_field("howpublished", self.howpublished)
+        entry_str += _print_field("institution", self.institution)
+        entry_str += _print_field("journal", self.journal, capitals=True)
+        entry_str += _print_field("key", self.key)
+        entry_str += _print_field("month", self.month)
+        entry_str += _print_field("note", self.note)
+        entry_str += _print_field("number", self.number)
+        entry_str += _print_field("organization", self.organization)
+        entry_str += _print_field("pages", self.pages)
+        entry_str += _print_field("publisher", self.publisher)
+        entry_str += _print_field("school", self.school)
+        entry_str += _print_field("series", self.series)
+        entry_str += _print_field("title", self.title)
+        entry_str += _print_field("type", self.type)
+        entry_str += _print_field("url", self.url)
+        entry_str += _print_field("volume", self.volume)
+        entry_str += _print_field("year", self.year)
+        entry_str += _print_field("doi", self.doi)
         entry_str += "}\n\n"
         return entry_str
 
@@ -310,6 +286,26 @@ def _parse_booktitle(booktitle):
     return None
 
 
+def _print_field(field_name, field_value, capitals=False):
+    """
+    Print a field in bib format is value is not none.
+    :param field_name: name of the field
+    :param field_value: value of the field
+    :return: field in bib format or blank if field is None
+    """
+    if field_value:
+        field_value = str(field_value).replace("_", "\_")
+        field_value = str(field_value).replace("\\\\_", "\_")
+        field_value = str(field_value).replace("#", "\#")
+        field_value = str(field_value).replace("\\\\#", "\#")
+        field_value = str(field_value).replace("$", "")
+        if capitals:
+            return "\t%s = {{%s}},\n" % (field_name, field_value)
+        else:
+            return "\t%s = {%s},\n" % (field_name, field_value)
+    return ""
+
+
 def _merge_field(f1, f2, is_int=False):
     """
     Merge field contents from two entries.
@@ -325,10 +321,13 @@ def _merge_field(f1, f2, is_int=False):
     if not f1 and f2 is not None:
         return f2
     if is_int:
-        if int(f1) >= int(f2):
-            return f1
-        else:
-            return f2
+        try:
+            if int(f1) >= int(f2):
+                return f1
+            else:
+                return f2
+        except ValueError:
+            pass
     if len(f1) >= len(f2):
         return f1
     else:

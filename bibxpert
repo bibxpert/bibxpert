@@ -26,7 +26,7 @@ from tools import loader
 
 log = logging.getLogger(__name__)
 
-SEARCH_OPTIONS = ['arxiv', 'doi', 'ieee', 'scopus']
+SEARCH_OPTIONS = ['arxiv', 'doi', 'ieee', 'scopus', 'pmc']
 
 
 def process(options, args):
@@ -42,6 +42,7 @@ def process(options, args):
         entries = doi.process(entries)
         entries = ieee.process(entries)
         entries = science_direct.process(entries)
+        # entries = pmc.process(entries)
         entries = arxiv.process(entries)
     elif options.search:
         for option in options.search:
@@ -51,6 +52,8 @@ def process(options, args):
                 entries = ieee.process(entries)
             elif option == "scopus":
                 entries = science_direct.process(entries)
+            # elif option == "pmc":
+            #     entries = pmc.process(entries)
             elif option == "arxiv":
                 entries = arxiv.process(entries)
 

@@ -20,6 +20,7 @@ __author__ = "Rafael Ferreira da Silva"
 import logging
 import requests
 import time
+import pprint
 
 from entries import entry
 
@@ -55,25 +56,25 @@ def process(entries):
         sd_res = sd_response.json()
 
         # DOI fields
-        title = sd_res['title']
-        type = sd_res['type']
-        container_title = sd_res['container-title']
-        publisher = sd_res['publisher']
+        title = str(sd_res['title'])
+        type = str(sd_res['type'])
+        container_title = str(sd_res['container-title'])
+        publisher = str(sd_res['publisher'])
 
         pages = None
         if 'page' in sd_res:
-            pages = sd_res['page']
+            pages = str(sd_res['page'])
 
         number = None
         if 'issue' in sd_res:
-            number = sd_res['issue']
+            number = str(sd_res['issue'])
 
         volume = None
         if 'volume' in sd_res:
-            volume = sd_res['volume']
+            volume = str(sd_res['volume'])
 
         if 'issued' in sd_res:
-            year = sd_res['issued']['date-parts'][0][0]
+            year = str(sd_res['issued']['date-parts'][0][0])
 
         # authors
         authors_list = None
@@ -82,7 +83,7 @@ def process(entries):
             for author in sd_res['author']:
                 if len(authors_list) > 0:
                     authors_list += " and "
-                authors_list += author['family'] + ", " + author['given']
+                authors_list += str(author['family']) + ", " + str(author['given'])
 
         # editors
         editor = None
@@ -91,7 +92,7 @@ def process(entries):
             for author in sd_res['editor']:
                 if len(editor) > 0:
                     editor += " and "
-                editor += author['family'] + ", " + author['given']
+                editor += str(author['family']) + ", " + str(author['given'])
 
         booktitle = None
         journal = None

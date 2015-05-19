@@ -32,7 +32,7 @@ def authors_etal(entries, max_authors=2):
     count = 0
 
     for entry in entries:
-        if len(entry.authors) > max_authors or len(entry.editor) > max_authors:
+        if len(entry.authors) > max_authors or len(entry.editors) > max_authors:
             authors_list = []
             num = 0
             for author in entry.authors.authors:
@@ -46,14 +46,14 @@ def authors_etal(entries, max_authors=2):
 
             editors_list = []
             num = 0
-            for author in entry.editor.authors:
+            for author in entry.editors.authors:
                 if num < max_authors:
                     editors_list.append(author)
                     num += 1
                 else:
                     editors_list.append(Author("others"))
                     break
-            entry.editor.authors = editors_list
+            entry.editors.authors = editors_list
 
             log.debug("[Authors et al.] Updated entry '%s'." % entry.title)
             count += 1
