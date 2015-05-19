@@ -42,6 +42,7 @@ def process(entries):
 
         doi_addr = e.doi
         if "dx.doi.org" in doi_addr:
+            doi_addr = doi_addr.replace("http://", "")
             doi_addr = doi_addr[doi_addr.rfind("dx.doi.org") + 11:]
 
         sd_url = 'http://dx.doi.org/%s' % doi_addr

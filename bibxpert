@@ -20,6 +20,7 @@ __author__ = "Rafael Ferreira da Silva"
 from optparse import OptionParser, OptionGroup
 
 from operations.deduplicate import *
+from operations.authors_etal import *
 from operations.search import *
 from tools import loader
 
@@ -42,7 +43,7 @@ def process(options, args):
         entries = ieee.process(entries)
         entries = science_direct.process(entries)
         entries = arxiv.process(entries)
-    else:
+    elif options.search:
         for option in options.search:
             if option == "doi":
                 entries = doi.process(entries)
@@ -52,6 +53,10 @@ def process(options, args):
                 entries = science_direct.process(entries)
             elif option == "arxiv":
                 entries = arxiv.process(entries)
+
+    # Authors et al.
+    if options.number_of_authors:
+        entries = authors_etal(entries, options.number_of_authors)
 
     # Write results
     if options.output:
@@ -86,6 +91,8 @@ def option_parser(usage):
     parser.add_option("-S", "--search", dest="search", action="append",
                       help="Update BIBTex entries according to a list of Scholar Resources "
                            "(e.g., doi, ieee, elsevier, or arxiv)")
+    parser.add_option("-A", "--authorsetal", dest="number_of_authors", action="store",
+                      default=False, help="Limit the number of authors")
 
     parser.add_option("-o", "--output", action="store", type="string",
                       dest="output", default=None, help="Output file")
@@ -136,11 +143,23 @@ def main():
 
     # validate search options
     if not options.all and not options.scholar:
-        for option in options.search:
-            if option not in SEARCH_OPTIONS:
-                log.error("Search options not valid: %s" % option)
-                _print_valid_search_options()
+        if options.search:
+            for option in options.search:
+                if option not in SEARCH_OPTIONS:
+                    log.error("Search options not valid: %s" % option)
+                    _print_valid_search_options()
+                    exit(1)
+
+    # validate number of authors
+    if options.number_of_authors:
+        try:
+            options.number_of_authors = int(options.number_of_authors)
+            if options.number_of_authors <= 1:
+                log.error("Number of authors should be at least 2.")
                 exit(1)
+        except ValueError, e:
+            log.error("Invalid number of authors: '%s'" % options.number_of_authors)
+            exit(1)
 
     process(options, args)
 
