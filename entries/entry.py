@@ -187,6 +187,9 @@ class Authors:
         max_len = min(len(merge_authors), len(self.authors))
         for i in range(0, max_len):
             self.authors[i].merge(merge_authors[i])
+        if len(merge_authors) > len(self.authors):
+            for i in range(max_len, len(merge_authors)):
+                self.authors.append(merge_authors[i])
 
     def __str__(self):
         authors = ""
@@ -245,10 +248,13 @@ class Author:
         """
         if not self.last_name and author_merge.last_name:
             self.last_name = author_merge.last_name
+            if self.first_name.lower() == "others":
+                self.first_name = author_merge.first_name
+
         elif author_merge.last_name and is_similar(self.last_name, author_merge.last_name, threshold=0.5):
-            if len(author_merge.last_name) > self.last_name:
+            if len(author_merge.last_name) > len(self.last_name):
                 self.last_name = author_merge.last_name
-            if len(author_merge.first_name) > self.first_name:
+            if len(author_merge.first_name) > len(self.first_name):
                 self.first_name = author_merge.first_name
 
     def __str__(self):

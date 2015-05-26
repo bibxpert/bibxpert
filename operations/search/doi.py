@@ -20,9 +20,9 @@ __author__ = "Rafael Ferreira da Silva"
 import logging
 import requests
 import time
-from tools import utils
 
 from entries import entry
+from tools import utils
 
 log = logging.getLogger(__name__)
 
@@ -78,20 +78,12 @@ def process(entries):
         # authors
         authors_list = None
         if 'author' in sd_res:
-            authors_list = ""
-            for author in sd_res['author']:
-                if len(authors_list) > 0:
-                    authors_list += " and "
-                authors_list += utils.encode(author['family']) + ", " + utils.encode(author['given'])
+            authors_list = _parse_authors(sd_res['author'])
 
         # editors
         editor = None
         if 'editor' in sd_res:
-            editor = ""
-            for author in sd_res['editor']:
-                if len(editor) > 0:
-                    editor += " and "
-                editor += utils.encode(author['family']) + ", " + utils.encode(author['given'])
+            editor = _parse_authors(sd_res['editor'])
 
         booktitle = None
         journal = None
@@ -134,3 +126,31 @@ def process(entries):
         log.info("Updated %s entries according to the DOI." % count)
 
     return entries
+
+
+def _parse_authors(obj):
+    """
+    Create authors list from json.
+    :param obj: json authors object
+    :return: list of authors as string
+    """
+    authors_list = ""
+    for author in obj:
+        if len(authors_list) > 0:
+            authors_list += " and "
+
+        author_family = None
+        if 'family' in author:
+            author_family = utils.encode(author['family'])
+        author_given = None
+        if 'given' in author:
+            author_given = utils.encode(author['given'])
+
+        if author_family and author_given:
+            authors_list += author_family + ", " + author_given
+        elif author_given:
+            authors_list += author_given
+        elif author_family:
+            authors_list += author_family
+
+    return authors_list

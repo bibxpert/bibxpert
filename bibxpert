@@ -42,7 +42,7 @@ def process(options, args):
         entries = doi.process(entries)
         entries = ieee.process(entries)
         entries = science_direct.process(entries)
-        # entries = pmc.process(entries)
+        entries = pmc.process(entries)
         entries = arxiv.process(entries)
     elif options.search:
         for option in options.search:
@@ -52,8 +52,8 @@ def process(options, args):
                 entries = ieee.process(entries)
             elif option == "scopus":
                 entries = science_direct.process(entries)
-            # elif option == "pmc":
-            #     entries = pmc.process(entries)
+            elif option == "pmc":
+                entries = pmc.process(entries)
             elif option == "arxiv":
                 entries = arxiv.process(entries)
 
@@ -93,7 +93,7 @@ def option_parser(usage):
                                           "(e.g., DOI, IEEE, Science Direct, and arXiv)")
     parser.add_option("-S", "--search", dest="search", action="append",
                       help="Update BIBTex entries according to a list of Scholar Resources "
-                           "(e.g., doi, ieee, elsevier, or arxiv)")
+                           "(e.g., doi, ieee, elsevier, pmc, or arxiv)")
     parser.add_option("-A", "--authorsetal", dest="number_of_authors", action="store",
                       default=False, help="Limit the number of authors")
 
