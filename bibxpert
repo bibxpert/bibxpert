@@ -90,10 +90,10 @@ def option_parser(usage):
                       default=False, help="Remove duplicated entries")
     parser.add_option("-s", "--scholar", dest="scholar", action="store_true",
                       default=False, help="Update BIBTex entries according to Scholar Resources "
-                                          "(e.g., DOI, IEEE, Science Direct, and arXiv)")
+                                          "(e.g., DOI, IEEE, Science Direct, PubMed Central and arXiv)")
     parser.add_option("-S", "--search", dest="search", action="append",
                       help="Update BIBTex entries according to a list of Scholar Resources "
-                           "(e.g., doi, ieee, elsevier, pmc, or arxiv)")
+                           "(e.g., doi, ieee, scopus, pmc, or arxiv)")
     parser.add_option("-A", "--authorsetal", dest="number_of_authors", action="store",
                       default=False, help="Limit the number of authors")
 
