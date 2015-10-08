@@ -80,7 +80,16 @@ class Loader:
                             ignore_entry = True
                             continue
 
-                        key = line[index + 1:line.index(',')].strip()
+                        try:
+                            key = line[index + 1:line.index(',')].strip()
+                            new_entry['bib_type'] = bib_type
+                            new_entry['cite_key'] = key
+                        except ValueError:
+                            # key is probably on the next line
+                            key = None
+
+                    elif not key:
+                        key = line[1:line.index(',')].strip()
                         new_entry['bib_type'] = bib_type
                         new_entry['cite_key'] = key
 

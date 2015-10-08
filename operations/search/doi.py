@@ -55,9 +55,9 @@ def process(entries):
         sd_res = sd_response.json()
 
         # DOI fields
-        title = str(sd_res['title'])
+        title = utils.encode(sd_res['title'])
         type = str(sd_res['type'])
-        container_title = str(sd_res['container-title'])
+        container_title = utils.encode(sd_res['container-title'])
         publisher = str(sd_res['publisher'])
 
         pages = None

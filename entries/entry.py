@@ -28,7 +28,7 @@ class EntryType:
     BOOK = "book"
     INCOLLECTION = "incollection"
     INPROCEEDINGS = "inproceedings"
-    MASTERTHESIS = "masterthesis"
+    MASTERTHESIS = "mastersthesis"
     PHDTHESIS = "phdthesis"
     MISC = "misc"
     PROCEEDINGS = "proceedings"
@@ -101,6 +101,7 @@ class Entry:
         self.year = year
         self.doi = doi
         self.online_processed = False
+        self.compressed = False
 
     def merge(self, entry):
         """
@@ -226,8 +227,9 @@ class Author:
                 self.last_name = s[1].strip()
             elif len(s) > 2:
                 index = len(s) - 1
-                if len(s[len(s)-2]) <= 2:
-                    self.last_name = s[len(s)-2] + " " + s[len(s) - 1]
+                value = s[len(s) - 2]
+                if len(value) <= 2 and not value.endswith('.'):
+                    self.last_name = value + " " + s[len(s) - 1]
                     index -= 1
                 else:
                     self.last_name = s[len(s) - 1]

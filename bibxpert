@@ -19,6 +19,7 @@ __author__ = "Rafael Ferreira da Silva"
 
 from optparse import OptionParser, OptionGroup
 
+from operations.compression import *
 from operations.deduplicate import *
 from operations.authors_etal import *
 from operations.search import *
@@ -61,6 +62,13 @@ def process(options, args):
     if options.number_of_authors:
         entries = authors_etal(entries, options.number_of_authors)
 
+    # Compress
+    if options.compress:
+        if not options.number_of_authors:
+            # limit the number of authors by the default
+            entries = authors_etal(entries)
+        entries = compression(entries)
+
     # Write results
     if options.output:
         f = open(options.output, 'w')
@@ -96,6 +104,8 @@ def option_parser(usage):
                            "(e.g., doi, ieee, scopus, pmc, or arxiv)")
     parser.add_option("-A", "--authorsetal", dest="number_of_authors", action="store",
                       default=False, help="Limit the number of authors")
+    parser.add_option("-c", "--compress", dest="compress", action="store_true",
+                      default=False, help="Compress bibliography entries and print minimum requirements")
 
     parser.add_option("-o", "--output", action="store", type="string",
                       dest="output", default=None, help="Output file")
@@ -157,8 +167,8 @@ def main():
     if options.number_of_authors:
         try:
             options.number_of_authors = int(options.number_of_authors)
-            if options.number_of_authors <= 1:
-                log.error("Number of authors should be at least 2.")
+            if options.number_of_authors < 1:
+                log.error("Number of authors should be at least 1.")
                 exit(1)
         except ValueError, e:
             log.error("Invalid number of authors: '%s'" % options.number_of_authors)
