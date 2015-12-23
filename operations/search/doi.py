@@ -20,6 +20,7 @@ __author__ = "Rafael Ferreira da Silva"
 import logging
 import requests
 import time
+import re
 
 from entries import entry
 from tools import utils
@@ -45,10 +46,13 @@ def process(entries):
         if "dx.doi.org" in doi_addr:
             doi_addr = doi_addr[doi_addr.rfind("dx.doi.org") + 11:]
 
+        # Fixes Bug #12
+        doi_addr = re.sub(r'\\_', '_', doi_addr, flags=re.IGNORECASE).strip()
+
         sd_url = 'http://dx.doi.org/%s' % doi_addr
         sd_headers = {'Accept': 'application/rdf+xml;q=0.5, application/vnd.citationstyles.csl+json;q=1.0'}
         sd_response = requests.get(sd_url, headers=sd_headers)
-        if not sd_response:
+        if not sd_response.status_code == 200:
             log.warning("Could not retrieve information for DOI: %s" % doi_addr)
             continue
 
