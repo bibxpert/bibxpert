@@ -86,7 +86,7 @@ def process(options, args):
 
 def option_parser(usage):
     """
-
+    Parse the command line options.
     :param usage: tool usage string
     :return: parsed options and arguments
     """
@@ -146,7 +146,7 @@ def _print_valid_search_options():
 
 def main():
     args = sys.argv[1:]
-    parser = option_parser("bibxpert.py [OPTIONS] <LIST_OF_BIBFILES>")
+    parser = option_parser("bibxpert [OPTIONS] <LIST_OF_BIBFILES>")
     options, args = parser.parse_args(args)
 
     if len(args) == 0:

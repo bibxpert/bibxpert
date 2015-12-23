@@ -101,7 +101,7 @@ def _compress_titles(title, journal=True):
     s_year = title[0:4]
     try:
         year = int(s_year)
-        if year > 1900 and year <= date.today().year + 1:
+        if 1900 < year <= date.today().year + 1:
             title = title[4:]
     except ValueError:
         pass
@@ -126,10 +126,10 @@ def _compress_titles(title, journal=True):
     return title
 
 
-def _compress_ordinal_numbers(booktitle):
+def _compress_ordinal_numbers(title):
     """
     Replace write out numbers by numerical representation.
-    :param booktitle: title of the book
+    :param title: title of the book or journal
     :return: compressed ordinal numbers
     """
     os = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh',
@@ -141,14 +141,14 @@ def _compress_ordinal_numbers(booktitle):
     for d in range(0, len(decimals)):
         for n in range(0, 9):
             if n < 3:
-                booktitle = re.sub(r'%s-%s' % (decimals[d], os[n]), '%s%s%s' % (d + 2, n + 1, suffixes[n]), booktitle,
-                                   flags=re.IGNORECASE)
+                title = re.sub(r'%s-%s' % (decimals[d], os[n]), '%s%s%s' % (d + 2, n + 1, suffixes[n]), title,
+                               flags=re.IGNORECASE)
             else:
-                booktitle = re.sub(r'%s-%s' % (decimals[d], os[n]), '%s%sth' % (d + 2, n + 1), booktitle,
-                                   flags=re.IGNORECASE)
+                title = re.sub(r'%s-%s' % (decimals[d], os[n]), '%s%sth' % (d + 2, n + 1), title,
+                               flags=re.IGNORECASE)
     for n in range(0, 3):
-        booktitle = re.sub(r'%s' % os[n], '%s%s' % (n + 1, suffixes[n]), booktitle, flags=re.IGNORECASE)
+        title = re.sub(r'%s' % os[n], '%s%s' % (n + 1, suffixes[n]), title, flags=re.IGNORECASE)
     for n in range(3, len(os)):
-        booktitle = re.sub(r'%s' % os[n], '%sth' % (n + 1), booktitle, flags=re.IGNORECASE)
+        title = re.sub(r'%s' % os[n], '%sth' % (n + 1), title, flags=re.IGNORECASE)
 
-    return booktitle.strip()
+    return title.strip()
