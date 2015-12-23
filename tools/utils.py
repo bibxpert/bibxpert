@@ -103,3 +103,17 @@ def encode(value):
     :return: encoded value
     """
     return str(u''.join(value).encode('utf-8'))
+
+
+def replace_text(obj, pattern, replacement):
+    """
+    Replace a pattern by a new string.
+    :param obj: string object to search for the pattern
+    :param pattern: string pattern to search for
+    :param replacement: string to replace the pattern
+    :return: replaced string if pattern is found
+    """
+    if pattern in str(obj).lower():
+        return re.sub(r'%s' % pattern, replacement, obj, flags=re.IGNORECASE).strip()
+    return obj
+

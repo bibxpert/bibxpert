@@ -17,12 +17,18 @@
 #
 __author__ = "Rafael Ferreira da Silva"
 
-import logging
-import re
-
 from datetime import date
+from tools.utils import *
 
 log = logging.getLogger(__name__)
+
+# List of journal titles and their abbreviations
+journals_abbrv = {
+    "Concurrency and Computation: Practice and Experience": "CCPE",
+    "Future Generation Computer Systems": "FGCS",
+    "International Journal of High Performance Computing Applications": "IJHPCA",
+    "Transactions on Parallel and Distributed Systems": "TPDS",
+}
 
 
 def compression(entries):
@@ -36,7 +42,10 @@ def compression(entries):
 
     for entry in entries:
         _compress_authors(entry.authors)
-        entry.booktitle = _compress_booktitles(entry.booktitle)
+        if entry.booktitle:
+            entry.booktitle = _compress_titles(entry.booktitle, journal=False)
+        if entry.journal:
+            entry.journal = _compress_titles(entry.journal)
         entry.compressed = True
         count += 1
 
@@ -62,56 +71,59 @@ def _compress_authors(authors_obj):
             author.first_name = first_name
 
 
-def _compress_booktitles(booktitle):
+def _compress_titles(title, journal=True):
     """
-    Compress book titles by abbreviating words and removing conference acronyms.
-    :param booktitle: title of the book
+    Compress book or journal titles by abbreviating words and removing conference acronyms.
+    :param title: title of the book or journal
     :return: compressed title
     """
-    if booktitle:
-        # remove proceedings from the beginning of the title
-        if 'proceedings of the' in booktitle.lower():
-            booktitle = re.sub(r'proceedings of the', '', booktitle, flags=re.IGNORECASE).strip()
-        elif 'proceedings of' in booktitle.lower():
-            booktitle = re.sub(r'proceedings of', '', booktitle, flags=re.IGNORECASE).strip()
-        elif 'proceedings' in booktitle.lower():
-            booktitle = re.sub(r'proceedings', '', booktitle, flags=re.IGNORECASE).strip()
-        elif 'proc. of the' in booktitle.lower():
-            booktitle = re.sub(r'proc. of the', '', booktitle, flags=re.IGNORECASE).strip()
-        elif 'proc. of' in booktitle.lower():
-            booktitle = re.sub(r'proc. of', '', booktitle, flags=re.IGNORECASE).strip()
 
-        # remove year from the beginning of the title
-        s_year = booktitle[0:4]
-        try:
-            year = int(s_year)
-            if year > 1900 and year <= date.today().year + 1:
-                booktitle = booktitle[4:]
-        except ValueError:
-            pass
+    # compress journal titles with their abbreviations
+    if journal:
+        for journal_title in journals_abbrv:
+            if journal_title.lower() in title.lower():
+                title = re.sub(r'%s' % journal_title, journals_abbrv[journal_title], title, flags=re.IGNORECASE).strip()
+                break
 
-        # remove in from beginning of the title
-        if booktitle.lower().startswith('in '):
-            booktitle = booktitle[2:].strip()
+    # remove proceedings from the beginning of the title
+    if 'proceedings of the' in title.lower():
+        title = re.sub(r'proceedings of the', '', title, flags=re.IGNORECASE).strip()
+    elif 'proceedings of' in title.lower():
+        title = re.sub(r'proceedings of', '', title, flags=re.IGNORECASE).strip()
+    elif 'proceedings' in title.lower():
+        title = re.sub(r'proceedings', '', title, flags=re.IGNORECASE).strip()
+    elif 'proc. of the' in title.lower():
+        title = re.sub(r'proc. of the', '', title, flags=re.IGNORECASE).strip()
+    elif 'proc. of' in title.lower():
+        title = re.sub(r'proc. of', '', title, flags=re.IGNORECASE).strip()
 
-        # replace write out numbers
-        booktitle = _compress_ordinal_numbers(booktitle)
+    # remove year from the beginning of the title
+    s_year = title[0:4]
+    try:
+        year = int(s_year)
+        if year > 1900 and year <= date.today().year + 1:
+            title = title[4:]
+    except ValueError:
+        pass
 
-        # remove other characters
-        if booktitle.startswith('.'):
-            booktitle = booktitle[1:].strip()
+    # remove in from beginning of the title
+    if title.lower().startswith('in '):
+        title = title[2:].strip()
 
-        # abbreviate words
-        if 'international' in booktitle.lower():
-            booktitle = re.sub(r'international', 'Internat.', booktitle, flags=re.IGNORECASE).strip()
-        if 'conference' in booktitle.lower():
-            booktitle = re.sub(r'conference', 'Conf.', booktitle, flags=re.IGNORECASE).strip()
-        if 'symposium' in booktitle.lower():
-            booktitle = re.sub(r'symposium', 'Symp.', booktitle, flags=re.IGNORECASE).strip()
-        if 'management' in booktitle.lower():
-            booktitle = re.sub(r'management', 'Managem.', booktitle, flags=re.IGNORECASE).strip()
+    # replace write out numbers
+    title = _compress_ordinal_numbers(title)
 
-    return booktitle
+    # remove other characters
+    if title.startswith('.'):
+        title = title[1:].strip()
+
+    # abbreviate words
+    title = replace_text(title, 'international', 'Internat.')
+    title = replace_text(title, 'conference', 'Conf.')
+    title = replace_text(title, 'symposium', 'Symp.')
+    title = replace_text(title, 'management', 'Managem.')
+
+    return title
 
 
 def _compress_ordinal_numbers(booktitle):
