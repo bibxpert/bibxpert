@@ -91,7 +91,9 @@ def option_parser(usage):
     :param usage: tool usage string
     :return: parsed options and arguments
     """
-    parser = OptionParser(usage="usage: %s" % usage, version=VERSION, description="BibXpert: an open-source bibliography management tool for LaTeX BibTex files")
+    parser = OptionParser(usage="usage: %s" % usage, version=VERSION,
+                          description="BibXpert: an open-source bibliography management tool for LaTeX BibTex files",
+                          epilog="Documentation and releases are available at: http://www.rafaelsilva.com/tools/bibxpert")
 
     parser.add_option("-a", "--all", dest="all", action="store_true",
                       default=False, help="Apply all options")
