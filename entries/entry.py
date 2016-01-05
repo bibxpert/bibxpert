@@ -210,7 +210,7 @@ class Authors:
 class Author:
     def __init__(self, author_name):
         """
-
+        Create an author object with first and last names.
         :param author_name: name of a single author
         """
         self.first_name = ""
@@ -243,6 +243,9 @@ class Author:
                 if not author_name.lower() == "others":
                     log.warning("Unable to find last name: %s" % author_name)
 
+        if self.first_name and self.last_name:
+            self._remove_duplicated_names()
+
     def merge(self, author_merge):
         """
         Merge author's first and last names with another similar entry.
@@ -258,6 +261,26 @@ class Author:
                 self.last_name = author_merge.last_name
             if len(author_merge.first_name) > len(self.first_name):
                 self.first_name = author_merge.first_name
+
+        self._remove_duplicated_names()
+
+    def _remove_duplicated_names(self):
+        """
+        Look for duplicated names in authors and remove them (Bug #13).
+        """
+        given_names = self.first_name.split(" ")
+        last_names = self.last_name.split(" ")
+        change = False
+
+        if len(given_names) > 0 and len(last_names) > 1:
+            for name in given_names[1:]:
+                if "." not in name and name in self.last_name:
+                    self.first_name = self.first_name.replace(name, "")
+
+        if len(last_names) > 0 and len(given_names) == 1:
+            if given_names[0] in last_names:
+                change = True
+                self.last_name = self.last_name.replace(given_names[0], "")
 
     def __str__(self):
         if self.last_name:
@@ -298,7 +321,7 @@ def _parse_booktitle(booktitle):
 
 def _print_field(field_name, field_value, capitals=False):
     """
-    Print a field in bib format is value is not none.
+    Print a field in bib format if value is not none.
     :param field_name: name of the field
     :param field_value: value of the field
     :return: field in bib format or blank if field is None

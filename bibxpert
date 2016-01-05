@@ -27,6 +27,7 @@ from tools import loader
 
 log = logging.getLogger(__name__)
 
+VERSION = "1.1.0-dev"
 SEARCH_OPTIONS = ['arxiv', 'doi', 'ieee', 'scopus', 'pmc']
 
 
@@ -90,7 +91,7 @@ def option_parser(usage):
     :param usage: tool usage string
     :return: parsed options and arguments
     """
-    parser = OptionParser(usage="usage: %s" % usage)
+    parser = OptionParser(usage="usage: %s" % usage, version=VERSION, description="BibXpert: an open-source bibliography management tool for LaTeX BibTex files")
 
     parser.add_option("-a", "--all", dest="all", action="store_true",
                       default=False, help="Apply all options")
