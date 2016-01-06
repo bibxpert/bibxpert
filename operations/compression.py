@@ -22,14 +22,6 @@ from tools.utils import *
 
 log = logging.getLogger(__name__)
 
-# List of journal titles and their abbreviations
-journals_abbrv = {
-    "Concurrency and Computation: Practice and Experience": "CCPE",
-    "Future Generation Computer Systems": "FGCS",
-    "International Journal of High Performance Computing Applications": "IJHPCA",
-    "Transactions on Parallel and Distributed Systems": "TPDS",
-}
-
 
 def compression(entries):
     """
@@ -43,9 +35,9 @@ def compression(entries):
     for entry in entries:
         _compress_authors(entry.authors)
         if entry.booktitle:
-            entry.booktitle = _compress_titles(entry.booktitle, journal=False)
+            entry.booktitle = _compress_book_title(entry.booktitle)
         if entry.journal:
-            entry.journal = _compress_titles(entry.journal)
+            entry.journal = _compress_journal_title(entry.journal)
         entry.compressed = True
         count += 1
 
@@ -71,19 +63,12 @@ def _compress_authors(authors_obj):
             author.first_name = first_name
 
 
-def _compress_titles(title, journal=True):
+def _compress_book_title(title):
     """
-    Compress book or journal titles by abbreviating words and removing conference acronyms.
-    :param title: title of the book or journal
+    Compress book titles by abbreviating words and removing conference acronyms.
+    :param title: title of the book
     :return: compressed title
     """
-
-    # compress journal titles with their abbreviations
-    if journal:
-        for journal_title in journals_abbrv:
-            if journal_title.lower() in title.lower():
-                title = re.sub(r'%s' % journal_title, journals_abbrv[journal_title], title, flags=re.IGNORECASE).strip()
-                break
 
     # remove proceedings from the beginning of the title
     if 'proceedings of the' in title.lower():
@@ -117,11 +102,37 @@ def _compress_titles(title, journal=True):
     if title.startswith('.'):
         title = title[1:].strip()
 
-    # abbreviate words
+    # abbreviate of common terms
     title = replace_text(title, 'international', 'Internat.')
     title = replace_text(title, 'conference', 'Conf.')
     title = replace_text(title, 'symposium', 'Symp.')
     title = replace_text(title, 'management', 'Managem.')
+
+    return title
+
+
+def _compress_journal_title(title):
+    """
+    Compress journal titles with their abbreviations
+    :param title:
+    :return:
+    """
+    # abbreviate of common terms
+    title = replace_text(title, 'transactions', 'Trans.')
+    title = replace_text(title, 'communications', 'Commun.')
+    title = replace_text(title, 'lecture', 'Lect.')
+    title = replace_text(title, 'academic', 'Acad.')
+    title = replace_text(title, 'conference', 'Conf.')
+    title = replace_text(title, 'series', 'Ser.')
+    title = replace_text(title, 'journal', 'J.')
+    title = replace_text(title, 'magazine', 'Mag.')
+    title = replace_text(title, 'bulletin', 'B.')
+    title = replace_text(title, 'review', 'Rev.')
+    title = replace_text(title, 'proceedings', 'Proc.')
+    title = replace_text(title, 'advances', 'Adv.')
+    title = replace_text(title, 'annales', 'Ann.')
+    title = replace_text(title, 'annals', 'Ann.')
+    title = replace_text(title, 'applied', 'Appl.')
 
     return title
 

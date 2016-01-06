@@ -88,7 +88,7 @@ class Loader:
                             # key is probably on the next line
                             key = None
 
-                    elif not key:
+                    elif not ignore_entry and not key:
                         key = line[1:line.index(',')].strip()
                         new_entry['bib_type'] = bib_type
                         new_entry['cite_key'] = key
