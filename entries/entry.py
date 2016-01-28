@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2015 Rafael Ferreira da Silva
+# Copyright 2015-2016 Rafael Ferreira da Silva
 # http://www.rafaelsilva.com/tools
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,18 +48,18 @@ class Entry:
         :param address:
         :param annote:
         :param authors: list of authors (separated by 'and')
-        :param booktitle:
+        :param booktitle: title of the conference book
         :param chapter:
         :param crossref:
         :param edition:
-        :param editors:
+        :param editors: list of editors (separated by 'and')
         :param howpublished:
         :param institution:
-        :param journal:
+        :param journal: title of the journal
         :param key: publication key (usually required for 'misc' entry types)
         :param month:
         :param note:
-        :param number:
+        :param number: journal issue number
         :param organization:
         :param pages: page numbers (separated by dashes)
         :param publisher:
@@ -68,7 +68,7 @@ class Entry:
         :param title: publication title
         :param type:
         :param url: publication url
-        :param volume:
+        :param volume: journal volume
         :param year: publication year
         :param doi: document object identifier
         """
@@ -100,6 +100,7 @@ class Entry:
         self.volume = volume
         self.year = year
         self.doi = doi
+        # Entry internal properties
         self.online_processed = False
         self.compressed = False
 
@@ -136,35 +137,37 @@ class Entry:
         self.editors.merge(entry.editors.authors)
         self.authors.merge(entry.authors.authors)
 
-
     def __str__(self):
         entry_str = "@%s{%s,\n" % (self.entry_type, self.cite_key)
-        entry_str += _print_field("address", self.address)
-        entry_str += _print_field("annote", self.annote)
         entry_str += _print_field("author", self.authors)
         entry_str += _print_field("booktitle", self.booktitle, capitals=True)
-        entry_str += _print_field("chapter", self.chapter)
-        entry_str += _print_field("crossref", self.crossref)
-        entry_str += _print_field("edition", self.edition)
-        entry_str += _print_field("editor", self.editors)
-        entry_str += _print_field("howpublished", self.howpublished)
-        entry_str += _print_field("institution", self.institution)
         entry_str += _print_field("journal", self.journal, capitals=True)
-        entry_str += _print_field("key", self.key)
-        entry_str += _print_field("month", self.month)
-        entry_str += _print_field("note", self.note)
         entry_str += _print_field("number", self.number)
-        entry_str += _print_field("organization", self.organization)
-        entry_str += _print_field("pages", self.pages)
-        entry_str += _print_field("publisher", self.publisher)
-        entry_str += _print_field("school", self.school)
-        entry_str += _print_field("series", self.series)
         entry_str += _print_field("title", self.title)
-        entry_str += _print_field("type", self.type)
-        entry_str += _print_field("url", self.url)
         entry_str += _print_field("volume", self.volume)
         entry_str += _print_field("year", self.year)
-        entry_str += _print_field("doi", self.doi)
+
+        if not self.compressed:
+            entry_str += _print_field("address", self.address)
+            entry_str += _print_field("annote", self.annote)
+            entry_str += _print_field("chapter", self.chapter)
+            entry_str += _print_field("crossref", self.crossref)
+            entry_str += _print_field("edition", self.edition)
+            entry_str += _print_field("editor", self.editors)
+            entry_str += _print_field("howpublished", self.howpublished)
+            entry_str += _print_field("institution", self.institution)
+            entry_str += _print_field("key", self.key)
+            entry_str += _print_field("month", self.month)
+            entry_str += _print_field("note", self.note)
+            entry_str += _print_field("organization", self.organization)
+            entry_str += _print_field("pages", self.pages)
+            entry_str += _print_field("publisher", self.publisher)
+            entry_str += _print_field("school", self.school)
+            entry_str += _print_field("series", self.series)
+            entry_str += _print_field("type", self.type)
+            entry_str += _print_field("url", self.url)
+            entry_str += _print_field("doi", self.doi)
+
         entry_str += "}\n\n"
         return entry_str
 
@@ -324,6 +327,7 @@ def _print_field(field_name, field_value, capitals=False):
     Print a field in bib format if value is not none.
     :param field_name: name of the field
     :param field_value: value of the field
+    :param capitals: whether to add
     :return: field in bib format or blank if field is None
     """
     if field_value:

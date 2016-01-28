@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2015 Rafael Ferreira da Silva
+# Copyright 2015-2016 Rafael Ferreira da Silva
 # http://www.rafaelsilva.com/tools
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@ __author__ = "Rafael Ferreira da Silva"
 from entries.entry import *
 
 log = logging.getLogger(__name__)
+
 
 def authors_etal(entries, max_authors=2):
     """

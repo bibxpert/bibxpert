@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2015 Rafael Ferreira da Silva
+# Copyright 2015-2016 Rafael Ferreira da Silva
 # http://www.rafaelsilva.com/tools
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 __author__ = "Rafael Ferreira da Silva"
 
 from datetime import date
+from entries.entry import *
 from tools.utils import *
 
 log = logging.getLogger(__name__)
@@ -33,13 +34,14 @@ def compression(entries):
     count = 0
 
     for entry in entries:
-        _compress_authors(entry.authors)
-        if entry.booktitle:
-            entry.booktitle = _compress_book_title(entry.booktitle)
-        if entry.journal:
-            entry.journal = _compress_journal_title(entry.journal)
-        entry.compressed = True
-        count += 1
+        if not entry.entry_type == EntryType.MISC:
+            _compress_authors(entry.authors)
+            if entry.booktitle:
+                entry.booktitle = _compress_book_title(entry.booktitle)
+            if entry.journal:
+                entry.journal = _compress_journal_title(entry.journal)
+            entry.compressed = True
+            count += 1
 
     if count > 0:
         log.info("Compressed %s entries." % count)
